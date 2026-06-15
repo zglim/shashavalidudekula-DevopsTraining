@@ -4,25 +4,35 @@
 #Date: 12th Jun,2022
 #use: Script to check given input is file/dir.. if it is a file display contentes, if it is a dir list no of files in dir
 
-echo
 read -p "Enter file/dir name: " name
-echo
-if [ -f $name ]          #checks given input is file or not
-then
-	cat $name 
-	exit 0
+
+# Handle empty input
+if [ -z "$name" ]; then
+    echo "Error: No input provided." >&2
+    exit 1
 fi
 
-if [ -d $name ]        #checks given input is dir or not
-then
-	files=`find /home/shasha/shellscripts/interviewques/example/ -type f | wc -l`      #ouputs the number of files in the given dir.. you can change the path according to your fiels
-	echo
-	echo "You have $files files in your $name dir"
-	echo
-	echo "the files are"
-	echo
-	ls $name
-	echo
-	exit 0
+# Handle non-existent path
+if [ ! -e "$name" ]; then
+    echo "Error: '$name' does not exist." >&2
+    exit 1
 fi
 
+if [ -f "$name" ]; then
+    echo "=== '$name' is a file ==="
+    echo "--- Contents ---"
+    cat "$name"
+    exit 0
+fi
+
+if [ -d "$name" ]; then
+    files=$(find "$name" -maxdepth 1 -type f | wc -l | tr -d ' ')
+    echo "=== '$name' is a directory ==="
+    echo "File count: $files"
+    echo "--- Directory listing ---"
+    ls "$name"
+    exit 0
+fi
+
+echo "Error: '$name' is neither a regular file nor a directory." >&2
+exit 1
